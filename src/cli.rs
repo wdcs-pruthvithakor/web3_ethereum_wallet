@@ -22,6 +22,9 @@ pub enum Commands {
 
     /// Send ETH to another address
     SendTransaction(SendTransactionArgs),
+
+    /// Start an interactive terminal interface
+    Interactive,
 }
 
 /// Struct for FetchBalance command arguments

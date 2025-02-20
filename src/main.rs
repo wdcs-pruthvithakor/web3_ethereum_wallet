@@ -5,6 +5,8 @@ mod cli;
 mod transaction;
 mod utils;
 mod wallet;
+mod interactive;
+
 use anyhow::{Context, Result};
 use balance::fetch_balance;
 use clap::Parser;
@@ -34,6 +36,9 @@ async fn main() -> Result<()> {
                 node_url: &args.node_url,
             };
             tx.send().await.context("Failed to send transaction")?;
+        }
+        Commands::Interactive => {
+            interactive::interactive_loop().await.context("Failed to run interactive session")?;
         }
     }
 
