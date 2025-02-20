@@ -3,6 +3,7 @@
 use crate::balance::fetch_balance;
 use crate::transaction::Transaction;
 use crate::wallet::Wallet;
+use crate::ethereum_client::EthereumClient;
 use anyhow::Result;
 use std::io::{self, Write};
 
@@ -21,13 +22,16 @@ pub async fn interactive_loop() -> Result<()> {
     let use_same_node = use_same_node.trim().to_lowercase() == "y"; // Check if the answer is 'y'
 
     let mut node_url = String::new();
+    let mut client: Option<EthereumClient> = None;
     
     if use_same_node {
-        // Ask for the node URL once and use it for all operations
+        // Ask for the node URL once and create a single client
         print!("Enter Ethereum node URL: ");
         io::stdout().flush().unwrap();
         io::stdin().read_line(&mut node_url)?;
         node_url = node_url.trim().to_string();
+
+        client = Some(EthereumClient::new(&node_url)?);
     }
 
     loop {
@@ -69,16 +73,18 @@ pub async fn interactive_loop() -> Result<()> {
                     // If the user opted not to use the same node, ask for the node URL here
                     println!("Enter Ethereum node URL:");
                     io::stdin().read_line(&mut node_url)?;
+                    client = Some(EthereumClient::new(&node_url)?);
                 }
 
                 println!("Enter Ethereum address:");
                 io::stdin().read_line(&mut address)?;
                 print_separator(); 
-                match fetch_balance(address.trim(), node_url.trim()).await {
-                    Ok(_) => {
-                    },
-                    Err(e) => {
-                        println!("\nError fetching balance: {:?}", e);
+                if let Some(client) = &client {
+                    match fetch_balance(client, address.trim()).await {
+                        Ok(_) => {},
+                        Err(e) => {
+                            println!("\nError fetching balance: {:?}", e);
+                        }
                     }
                 }
             }
@@ -92,6 +98,7 @@ pub async fn interactive_loop() -> Result<()> {
                     // If the user opted not to use the same node, ask for the node URL here
                     println!("Enter Ethereum node URL:");
                     io::stdin().read_line(&mut node_url)?;
+                    client = Some(EthereumClient::new(&node_url)?);
                 }
 
                 println!("Enter your private key:");
@@ -103,18 +110,19 @@ pub async fn interactive_loop() -> Result<()> {
 
                 let amount: f64 = amount.trim().parse().unwrap_or(0.0);
 
-                let tx = Transaction {
-                    from_private_key: private_key.trim(),
-                    to_address: to_address.trim(),
-                    amount,
-                    node_url: node_url.trim(),
-                };
-                print_separator();
-                match tx.send().await {
-                    Ok(_) => {
-                    },
-                    Err(e) => {
-                        println!("\nError sending transaction: {:?}", e);
+                if let Some(client) = &client {
+                    let tx = Transaction {
+                        from_private_key: private_key.trim(),
+                        to_address: to_address.trim(),
+                        amount,
+                        client: client,
+                    };
+                    print_separator();
+                    match tx.send().await {
+                        Ok(_) => {},
+                        Err(e) => {
+                            println!("\nError sending transaction: {:?}", e);
+                        }
                     }
                 }
             }

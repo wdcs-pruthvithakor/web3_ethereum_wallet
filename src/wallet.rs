@@ -1,4 +1,4 @@
-// wallet.rs
+// src/wallet.rs
 
 use crate::utils::public_key_to_address;
 use anyhow::{Context, Result};
