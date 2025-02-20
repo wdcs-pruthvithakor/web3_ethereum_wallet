@@ -5,7 +5,7 @@ use crate::utils::{hex_to_secret_key, wei_to_eth};
 use anyhow::{Context, Result};
 use std::str::FromStr;
 use web3::signing::SecretKey as Web3SecretKey;
-use web3::types::{Address, BlockNumber, TransactionParameters, U256};
+use web3::types::{Address, BlockNumber, TransactionParameters, U256, H256};
 
 /// Struct for holding transaction details
 pub struct Transaction<'a> {
@@ -73,4 +73,35 @@ impl<'a> Transaction<'a> {
 
         Ok(())
     }
+}
+
+pub async fn get_transaction_receipt(client: &EthereumClient, hash: &str) -> Result<()> {
+    let hash = H256::from_str(hash).context("Invalid transaction hash format")?;
+
+    let receipt: Option<_> = client
+        .web3
+        .eth()
+        .transaction_receipt(hash)
+        .await
+        .context("Failed to fetch receipt")?;
+
+    match receipt {
+        Some(receipt) => {
+            println!("Transaction Receipt:");
+            println!("{:#?}", receipt); // Pretty print the receipt
+            if let Some(status) = receipt.status {
+                if status == web3::types::U64::from(1) {
+                    println!("Transaction Status: Success");
+                } else {
+                    println!("Transaction Status: Failed");
+                }
+            } else {
+                println!("Transaction Status: Unknown (possibly older node)");
+            }
+        }
+        None => {
+            println!("Transaction receipt not found. Transaction is likely pending or invalid.");
+        }
+    }
+    Ok(())
 }
