@@ -6,7 +6,7 @@ use anyhow::{Context, Result};
 /// Struct to hold the Web3 client and the Ethereum node URL
 pub struct EthereumClient {
     pub web3: Web3<Http>,
-    pub node_url: String,
+    pub _node_url: String,
 }
 
 impl EthereumClient {
@@ -17,7 +17,7 @@ impl EthereumClient {
         let web3 = Web3::new(transport);
         Ok(EthereumClient {
             web3,
-            node_url: node_url.to_string(),
+            _node_url: node_url.to_string(),
         })
     }
 }
