@@ -7,6 +7,22 @@ use std::str::FromStr;
 use web3::signing::SecretKey as Web3SecretKey;
 use web3::types::{Address, BlockNumber, TransactionParameters, U256, H256};
 
+pub trait IntoTransactionHash {
+    fn into_transaction_hash(self) -> Result<H256>;
+}
+
+impl IntoTransactionHash for H256 {
+    fn into_transaction_hash(self) -> Result<H256> {
+        Ok(self)
+    }
+}
+
+impl<'a> IntoTransactionHash for &'a str {
+    fn into_transaction_hash(self) -> Result<H256> {
+        H256::from_str(self).context("Invalid transaction hash format")
+    }
+}
+
 /// Struct for holding transaction details
 pub struct Transaction<'a> {
     pub from_private_key: &'a str,
@@ -70,13 +86,16 @@ impl<'a> Transaction<'a> {
             .context("Failed to send transaction")?;
 
         println!("Transaction Hash: {:?}", tx_hash);
-
+        get_transaction_receipt(&self.client, tx_hash).await.context("Failed to get transaction recipt")?;
         Ok(())
     }
 }
 
-pub async fn get_transaction_receipt(client: &EthereumClient, hash: &str) -> Result<()> {
-    let hash = H256::from_str(hash).context("Invalid transaction hash format")?;
+pub async fn get_transaction_receipt<T: IntoTransactionHash>(
+    client: &EthereumClient,
+    hash: T,
+) -> Result<()> {
+    let hash = hash.into_transaction_hash()?;
 
     let receipt: Option<_> = client
         .web3
@@ -88,7 +107,7 @@ pub async fn get_transaction_receipt(client: &EthereumClient, hash: &str) -> Res
     match receipt {
         Some(receipt) => {
             println!("Transaction Receipt:");
-            println!("{:#?}", receipt); // Pretty print the receipt
+            println!("{:#?}", receipt);
             if let Some(status) = receipt.status {
                 if status == web3::types::U64::from(1) {
                     println!("Transaction Status: Success");
