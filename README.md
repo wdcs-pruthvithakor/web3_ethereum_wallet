@@ -1,12 +1,13 @@
 # Ethereum Wallet CLI
 
-A simple Ethereum wallet command-line interface (CLI) that allows you to generate a new Ethereum wallet, check the balance of an Ethereum address, and send Ethereum transactions.
+A simple Ethereum wallet command-line interface (CLI) that allows you to generate a new Ethereum wallet, check the balance of an Ethereum address, send Ethereum transactions, and retrieve transaction receipts.
 
 ## Features
 
 - **Generate a new Ethereum wallet**: Create a new wallet with a private key and address.
 - **Check Ethereum balance**: Fetch the balance of an Ethereum address.
 - **Send Ethereum transactions**: Send ETH from one address to another with an estimated gas fee.
+- **Get transaction receipt**: Fetch the receipt of a transaction using its hash.
 - **Interactive mode**: Enter commands interactively with prompts.
 
 ## Installation
@@ -131,7 +132,20 @@ To send an Ethereum transaction, use the following command:
 - `--amount`: Amount of ETH to send (in ETH).
 - `--node-url`: Ethereum node URL (e.g., Infura, local Hardhat node URL).
 
-#### 4. **Interactive Mode**
+#### 4. **Get transaction receipt**
+
+To retrieve the receipt of a transaction using its hash, use the following command:
+
+```bash
+./target/release/web3_ethereum_wallet get-transaction-receipt --hash <TRANSACTION_HASH> --node-url <ETHEREUM_NODE_URL>
+```
+
+- `--hash`: The transaction hash for which you want to retrieve the receipt.
+- `--node-url`: Ethereum node URL (e.g., Infura, local Hardhat node URL).
+
+This command will return the transaction receipt and the transaction status (whether successful or failed).
+
+#### 5. **Interactive Mode**
 
 To enter interactive mode, use the following command:
 
@@ -144,7 +158,8 @@ In interactive mode, you can choose from the following options:
 1. Generate a new Ethereum wallet.
 2. Check Ethereum balance.
 3. Send Ethereum transaction.
-4. Exit.
+4. Get transaction receipt.
+5. Exit.
 
 Interactive mode will guide you through the required inputs with prompts.
 
@@ -156,12 +171,15 @@ Select an option:
 1. Create a new wallet
 2. Check Ethereum balance
 3. Send Ethereum transaction
-4. Exit
-Enter your choice: 2
+4. Get transaction receipt
+5. Exit
+Enter your choice: 4
 Enter Ethereum node URL:
-Enter Ethereum address:
+Enter transaction hash:
 ------------------------------------------------------
-Balance: 1.2345 ETH
+Transaction Receipt:
+{ ... }  # Detailed receipt
+Transaction Status: Success
 ------------------------------------------------------
 ```
 
