@@ -12,7 +12,7 @@ use anyhow::{Context, Result};
 use balance::fetch_balance;
 use clap::Parser;
 use cli::{Cli, Commands};
-use transaction::Transaction;
+use transaction::{Transaction, get_transaction_receipt};
 use wallet::Wallet;
 use ethereum_client::EthereumClient;
 
@@ -40,6 +40,10 @@ async fn main() -> Result<()> {
                 client: &client,
             };
             tx.send().await.context("Failed to send transaction")?;
+        }
+        Commands::GetTransactionReceipt(args) => {
+            let client = EthereumClient::new(&args.node_url)?;
+            get_transaction_receipt(&client, args.hash.trim()).await.context("Failed to get transaction recipt")?;
         }
         Commands::Interactive => {
             interactive::interactive_loop().await.context("Failed to run interactive session")?;

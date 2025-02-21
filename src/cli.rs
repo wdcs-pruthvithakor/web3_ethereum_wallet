@@ -23,6 +23,10 @@ pub enum Commands {
     /// Send ETH to another address
     SendTransaction(SendTransactionArgs),
 
+    
+    /// Get transaction receipt information from transaction hash
+    GetTransactionReceipt(GetTransactionReceiptArgs),
+    
     /// Start an interactive terminal interface
     Interactive,
 }
@@ -53,6 +57,18 @@ pub struct SendTransactionArgs {
     /// Amount of ETH to send
     #[arg(help = "Amount of ETH to send to the recipient.")]
     pub amount: f64,
+
+    /// Ethereum node URL (e.g., http://localhost:8545)
+    #[arg(help = "URL of the Ethereum node (e.g., Infura or local node).")]
+    pub node_url: String,
+}
+
+/// Struct for GetTransactionReceipt command arguments
+#[derive(clap::Args)]
+pub struct GetTransactionReceiptArgs {
+    /// Transaction Hash to fetch the transaction receipt
+    #[arg(help = "Transaction Hash to fetch the transaction receipt.")]
+    pub hash: String,
 
     /// Ethereum node URL (e.g., http://localhost:8545)
     #[arg(help = "URL of the Ethereum node (e.g., Infura or local node).")]
