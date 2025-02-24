@@ -45,7 +45,7 @@ impl<'a> Transaction<'a> {
         .eth()
         .estimate_gas(TransactionParameters {
             to: Some(to_address),
-            value: U256::from((self.amount * 1e18) as u64),
+            value: U256::from_dec_str(&format!("{:.0}", self.amount * 1e18)).unwrap(),
             gas: U256::from(21000),
             gas_price: Some(U256::from(1000000000u64)), // 1 Gwei
             ..Default::default()
@@ -68,7 +68,7 @@ impl<'a> Transaction<'a> {
         // Proceed to sign and send the transaction
         let tx_object = TransactionParameters {
             to: Some(to_address),
-            value: U256::from((self.amount * 1e18) as u64),
+            value: U256::from_dec_str(&format!("{:.0}", self.amount * 1e18)).unwrap(),
             gas: gas_estimate,
             gas_price: Some(gas_price),
             ..Default::default()
